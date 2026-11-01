@@ -14,6 +14,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
+#define len(x) (sizeof(x) / sizeof((x)[0]))
+
 // pixel bytes, 1 bit encoding
 // converted from .png via image2cpp
 static const uint8_t SCALE = 8;
@@ -57,7 +59,7 @@ static char hbytes[] = {
   0x00, 0x89, 0xaa, 0x81, 0x83, 0xd0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00
 };
 // This is using "vertical" encoding, and the image will be scrambled.
-static char bytes[] = {
+static unsigned char bytes[] = {
     0x80, 0x00, 0x80, 0x00, 0x8e, 0x03, 0x97, 0x00, 0x9f, 0x03, 0x9c, 0x1f, 0x00, 0xff, 0x00, 0x90, 
     0x90, 0x90, 0x8f, 0x80, 0x80, 0x80, 0x80, 0x93, 0x80, 0x80, 0x90, 0x9d, 0x80, 0x80, 0x80, 0x97, 
     0x80, 0x80, 0x80, 0x9d, 0x80, 0x80, 0x80, 0x97, 0x80, 0x80, 0x80, 0x9d, 0x80, 0x80, 0x80, 0x97, 
@@ -100,29 +102,18 @@ static SDL_Palette  *palette  = NULL;
 
 // make sure bytes is a statically allocated 1d array
 // dimensions of (w x h). 
-static void rotate_bits(char *bytes, char *rotated, size_t w, size_t h) {
+static void rotate(unsigned char *bytes, unsigned char *rotated) {
   // main loop.
-  int bit = BYTES_TO_BITS - 1;
-  int byte = 0;
-  /*for (int c = 0; c < w / BYTES_TO_BITS; c++) {
-    for (int r = 0; r < h; r++) {
-      char new_byte = 0x0;
-      // TODO: FIX INDEXING!!
-      int addr = (c*r)+r;
-      for (int bit = BYTES_TO_BITS - 1; bit >= 0; bit--)
-      {
-        // fetch byte by row -> column &
-        // get only the bit we care about
-        char bit_mask = 0x1 << bit;
-        char masked_byte = bytes[addr] & bit_mask;
-        // shift the bit over to the column
-        // & add it to the new byte
-        new_byte |= masked_byte >> (BYTES_TO_BITS - (bit+1));
-      }
-      // save the byte then move on to the next
-      rotated[addr] = new_byte;
+  for (size_t i = 0; i < SIZE; i++) {
+    size_t row = i / (WIDTH / BYTES_TO_BITS);
+    size_t col = (i % HEIGHT);
+    unsigned char byte = bytes[i];
+    printf("(%d, %d): %04x\n", row, col, byte);
+    for (size_t bit = 0; bit < BYTES_TO_BITS; bit++) {
+      unsigned char mask = (0x1 << bit);
     }
-  }*/
+    rotated[i] = byte;
+  }
 }
 
 /* This function runs once at startup. */
@@ -136,10 +127,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
   
   SDL_SetDefaultTextureScaleMode(renderer, SDL_SCALEMODE_PIXELART);
 
-  char rotated[SIZE];
-  memcpy(rotated, bytes, SIZE);
-  //rotate_bits(bytes, rotated, WIDTH, HEIGHT);
-  surface = SDL_CreateSurfaceFrom(WIDTH, HEIGHT, SDL_PIXELFORMAT_INDEX1LSB, rotated, WIDTH / BYTES_TO_BITS);
+  unsigned char pixels[SIZE];
+  memset(pixels, 0, SIZE);
+  rotate(bytes, pixels);
+  surface = SDL_CreateSurfaceFrom(WIDTH, HEIGHT, SDL_PIXELFORMAT_INDEX1LSB, pixels, WIDTH / BYTES_TO_BITS);
   if (!surface)
   {
     SDL_Log("Did not initialize surface: %s", SDL_GetError());
