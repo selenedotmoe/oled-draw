@@ -154,9 +154,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     return SDL_APP_FAILURE;
   }
 
-  if (!SDL_SavePNG(surface, "test.png")) {
+  /*if (!SDL_SavePNG(surface, "test.png")) {
     SDL_Log("Couldn't save PNG file: %s", SDL_GetError());
-  }
+  }*/
 
   SDL_DestroySurface(surface);
 
