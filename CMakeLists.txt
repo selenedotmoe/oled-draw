@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(hello)
+project(main)
 
 # set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
@@ -9,7 +9,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
 
 # create executable
-add_executable(hello WIN32 hello.c)
+add_executable(main WIN32 main.c)
 
 # link to SDL library
-target_link_libraries(hello PRIVATE SDL3::SDL3)
+target_link_libraries(main PRIVATE SDL3::SDL3)

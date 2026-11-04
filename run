@@ -1,1 +1,1 @@
-cmake --build build && ./build/hello
+cmake --build bin/ && ./bin/main

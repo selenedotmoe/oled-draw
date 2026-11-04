@@ -12,5 +12,5 @@ keyboards using GMK firmware.
 ## Build
 
 ```bash
-cmake --build build && ./build/hello
+./build && ./run
 ```
